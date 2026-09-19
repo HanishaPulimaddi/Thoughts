@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Learning in public: essays and half-formed ideas by Hanisha Pulimaddi." />
+  <title>Learning in public · Hanisha Pulimaddi</title>
+  <script>
+    // Apply a saved theme before first paint to avoid a flash. With no saved
+    // choice, no attribute is set and the CSS follows the system setting.
+    try {
+      var saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+    } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body id="top">
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="nav__name" href="#top">Hanisha Pulimaddi</a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#top">Home</a>
+        <a href="#essays">Essays</a>
+        <a href="#about">About me</a>
+      </nav>
+
+      <div class="nav__right">
+        <button type="button" class="toggle" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+          <svg class="toggle__icon toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <svg class="toggle__icon toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+          </svg>
+          <span class="toggle__knob" aria-hidden="true"></span>
+        </button>
+        <a class="btn btn--primary" href="#contact">Contact <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- Full essay, shown when the URL hash matches an essay slug -->
+      <article class="essay" id="essay-view" aria-labelledby="essay-title" hidden>
+        <a class="essay__back" href="#essays"><span aria-hidden="true">←</span> All essays</a>
+        <header class="essay__head">
+          <span class="card__category" id="essay-category"></span>
+          <h1 class="essay__title" id="essay-title"></h1>
+          <div class="byline">
+            <span class="avatar avatar--lg" aria-hidden="true"><img src="Images/ProfilePicture.jpeg" width="608" height="1000" alt="" /></span>
+            <div>
+              <a class="byline__name" href="#about">Hanisha Pulimaddi</a>
+              <p class="byline__meta"><time id="essay-date"></time> · <span id="essay-read"></span></p>
+            </div>
+          </div>
+        </header>
+        <hr class="rule" />
+        <div class="essay__body" id="essay-body"></div>
+        <div class="essay__foot">
+          <a class="btn" href="#essays"><span aria-hidden="true">←</span> Back to all essays</a>
+        </div>
+      </article>
+
+      <div id="home-view">
+
+      <!-- Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 class="hero__title" id="hero-title">Learning in public</h1>
+        <hr class="rule hero__rule" />
+      </section>
+
+      <!-- Featured -->
+      <section class="featured" aria-labelledby="featured-title">
+        <figure class="featured__figure">
+          <img class="photo featured__media" src="Images/ThoughtsHeroPhoto.jpeg" width="1170" height="636" alt="Tall pines framing a misty mountain valley, with prayer flags strung above a small house" />
+          <figcaption class="caption">Manali, Himachal Pradesh, India</figcaption>
+        </figure>
+
+        <div class="featured__body">
+          <h2 class="featured__title" id="featured-title">Growing louder than my doubts</h2>
+          <p class="lead featured__lead">Essays and half-formed ideas and thoughts worth remembering and sharing.</p>
+          <a class="btn btn--primary featured__cta" id="latest-link" href="#essays">Read the latest essay <span aria-hidden="true">→</span></a>
+          <hr class="rule featured__rule" />
+          <div class="author">
+            <span class="avatar" aria-hidden="true"><img src="Images/ProfilePicture.jpeg" width="608" height="1000" alt="" /></span>
+            <div>
+              <p class="author__name">Hanisha Pulimaddi</p>
+              <p class="author__role">Software engineering at UTS, Sydney</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Essays -->
+      <section class="section" id="essays" aria-labelledby="essays-title">
+        <div class="section-head">
+          <h2 class="section-label" id="essays-title">Essays</h2>
+          <a class="view-all" href="#essays">View all »</a>
+        </div>
+        <div class="grid" id="essay-grid"></div>
+      </section>
+
+      <!-- About + contact -->
+      <section class="section" id="about" aria-labelledby="about-title">
+        <div class="section-head">
+          <h2 class="section-label" id="about-title">About me</h2>
+        </div>
+
+        <div class="about">
+          <h3 class="about__heading">Hanisha Pulimaddi</h3>
+          <img class="photo about__media about__photo" src="Images/ProfilePicture.jpeg" width="608" height="1000" alt="Hanisha Pulimaddi" loading="lazy" />
+
+          <div class="about__text">
+            <h4 class="about__heading">Building with curiosity. Exploring with intention.</h4>
+            <p class="lead">Why learn in public? Because the doubts are always loudest before I share, but every time I write things down, the lessons get a little clearer.</p>
+            <p class="lead">I'm a software engineering student at UTS in Sydney. I enjoy building technology that solves meaningful problems, but I'm equally passionate about understanding the people behind those problems. From startup experimentation to community initiatives, I'm driven by curiosity, continuous learning, and thoughtful problem-solving.</p>
+            <ul class="links topics" aria-label="Topics">
+              <li><a href="#essays" data-topic="Technology">Technology</a></li>
+              <li><a href="#essays" data-topic="Building">Building</a></li>
+              <li><a href="#essays" data-topic="Places">Places</a></li>
+            </ul>
+          </div>
+
+          <div class="about__contact" id="contact">
+            <form class="panel form" id="contact-form" novalidate>
+              <div class="form__row">
+                <div class="field">
+                  <label class="field__label" for="f-name">Name</label>
+                  <input class="field__input" id="f-name" name="name" type="text" autocomplete="name" placeholder="Your name" required />
+                </div>
+                <div class="field">
+                  <label class="field__label" for="f-email">Email</label>
+                  <input class="field__input" id="f-email" name="email" type="email" autocomplete="email" placeholder="your@email.com" required />
+                </div>
+              </div>
+              <div class="field">
+                <label class="field__label" for="f-subject">Subject</label>
+                <input class="field__input" id="f-subject" name="subject" type="text" placeholder="What's this about?" />
+              </div>
+              <div class="field">
+                <label class="field__label" for="f-message">Message</label>
+                <textarea class="field__input field__input--area" id="f-message" name="message" rows="5" placeholder="Tell me about the opportunity or idea..." required></textarea>
+              </div>
+              <div class="form__actions">
+                <button class="btn btn--primary btn--lg" type="submit">Send Message <span aria-hidden="true">→</span></button>
+              </div>
+              <p class="form__status" id="form-status" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="links">
+              <a href="https://www.linkedin.com/in/hanisha-pulimaddi-368545190" target="_blank" rel="noopener">LinkedIn</a>
+              <a href="https://PORTFOLIO_URL_PLACEHOLDER" target="_blank" rel="noopener">Portfolio</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="container">
+    <div class="footer">
+      <p>© 2026 Hanisha Pulimaddi</p>
+      <a href="#top">Back to top</a>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
