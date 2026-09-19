@@ -2,6 +2,7 @@
    Essays: add a new object here and a card and its article page render
    automatically. date is ISO (YYYY-MM-DD); it's shown as "11 September 2026".
    body is HTML paragraphs; subtitle, image (4:3), note and refs are optional.
+   Read time is estimated from the word count unless minutes is set.
    ========================================================================== */
 
 const essays = [
@@ -42,6 +43,14 @@ const essays = [
         <figcaption>Investing basics on one page. Select the image to open it full size.</figcaption>
       </figure>
     `,
+    minutes: 12,
+    refs: [
+      "Australian Securities and Investments Commission. (2026). How to invest. Moneysmart. https://moneysmart.gov.au/how-to-invest",
+      "Australian Securities and Investments Commission. (2026). Exchange traded funds (ETFs). Moneysmart. https://moneysmart.gov.au/managed-funds-and-etfs/exchange-traded-funds-etfs",
+      "Australian Securities and Investments Commission. (2026). Shares. Moneysmart. https://moneysmart.gov.au/shares",
+      "Reserve Bank of Australia. (2026). Inflation and its measurement. https://www.rba.gov.au/inflation/measures-cpi.html",
+      "Securities and Exchange Board of India. (2026). Investor education. https://investor.sebi.gov.in/",
+    ],
   },
   {
     title: "The Tiny Object Holding Up the Modern World",
@@ -260,7 +269,7 @@ function initRouter() {
     subtitle.hidden = !essay.subtitle;
     date.dateTime = essay.date;
     date.textContent = formatDate(essay.date);
-    read.textContent = `${readMinutes(essay.body)} min read`;
+    read.textContent = `${essay.minutes || readMinutes(essay.body)} min read`;
 
     const note = essay.note
       ? `<aside class="essay__note" aria-label="Author's note"><span class="essay__note-label">Author's note</span><p>${escapeHtml(essay.note)}</p></aside>`

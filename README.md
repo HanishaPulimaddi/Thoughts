@@ -26,6 +26,7 @@ Add an object to the `essays` array in `main.js`:
   note: "…",                    // optional author's note
   body: `<p>…</p><p>…</p>`,
   refs: ["…"],                  // optional references
+  minutes: 12,                  // optional; overrides the word-count read time
 }
 ```
 
