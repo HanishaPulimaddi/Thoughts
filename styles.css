@@ -254,6 +254,11 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
 }
 
 .view-all {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   line-height: 1;
@@ -262,6 +267,8 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
 }
 
 .view-all:hover { text-decoration: underline; }
+
+.view-all[hidden] { display: none; }
 
 .section { margin-top: var(--section-gap); }
 
@@ -529,6 +536,9 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
   row-gap: 56px;
 }
 
+/* Only the newest essays show until "View all" expands the grid. */
+.grid.is-collapsed > .card:nth-child(n + 5) { display: none; }
+
 .card__link {
   display: block;
   color: inherit;
@@ -562,6 +572,15 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
 }
 
 .card__link:hover .card__title { text-decoration-color: currentColor; }
+
+.card__subtitle {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--ink);
+}
 
 .card__date {
   display: block;
@@ -818,6 +837,19 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
   text-wrap: balance;
 }
 
+.essay__subtitle {
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.essay__subtitle[hidden] { display: none; }
+
 /* Focus is moved here for screen readers on open; it isn't interactive. */
 .essay__title:focus { outline: none; }
 
@@ -862,6 +894,16 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
 }
 
 .essay__body p + p { margin-top: 1.25em; }
+
+.essay__figure { margin: 40px 0 0; }
+
+.essay__figure figcaption {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+  text-align: center;
+}
 
 .essay__note {
   margin-bottom: 32px;

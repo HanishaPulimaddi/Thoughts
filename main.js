@@ -1,12 +1,13 @@
 /* ==========================================================================
    Essays: add a new object here and a card and its article page render
    automatically. date is ISO (YYYY-MM-DD); it's shown as "11 September 2026".
-   body is HTML paragraphs; image (4:3), note and refs are optional.
+   body is HTML paragraphs; subtitle, image (4:3), note and refs are optional.
    ========================================================================== */
 
 const essays = [
   {
-    title: "The Money I Never Learned About, Chapter 1",
+    title: "The Money I Never Learned About",
+    subtitle: "Chapter 1: Savings and Investments",
     category: "Money",
     date: "2026-09-19",
     excerpt: "In the earlier days, way before the concept of money was established, we had a barter system. It was built on one basic rule: you give something, and you get something in return. When someone works a job, they earn money. But the real question is, how do they grow that money?",
@@ -34,6 +35,12 @@ const essays = [
       <p>If you did not understand any of the things in this article, just understand these three key things. When you want to buy company shares, you use a broker or investment platform to place an order. The market connects you with someone selling those shares. If the share price goes up or the company pays you a portion of its profits, you can earn a return. If you want to invest in more than just one company, you put your money into a mutual fund along with other investors. The fund manager uses this pooled money to invest in different assets across different industries. If those investments grow, your investment can grow too. You buy an ETF through a broker or platform. The ETF invests in many different assets, so your money is spread across them. If those assets increase in value, your ETF can also increase in value.</p>
       <p>Can I start investing with this information? Yes, you can. The best way to learn about investing is by investing. But before you put your money in, take the time to research the investment, understand the risks, study its past performance and understand what you are actually investing in. Don't invest simply because something is popular or because someone else is doing it.</p>
       <p>All these thoughts lead me to more interesting questions like: Where do stock markets and trading come into play? How do I decide where to put my money? Should I monitor the markets, and how frequently? And what about cryptocurrency? Some of these questions can wait for now, but I know I'll be coming back to them. Somehow, a random word I didn't recognise on my banking app led me much further than I expected. I started because I wanted to understand one unfamiliar word: What is an ETF?, and I am ending it with an even longer list of things I want to understand. I don't have answers to these questions yet. There is still a lot more for me to understand. So, I guess this is only Chapter 1.</p>
+      <figure class="essay__figure">
+        <a href="Images/money-chapter-1-mind-map.png" target="_blank" rel="noopener">
+          <img class="photo" src="Images/money-chapter-1-mind-map.png" width="1312" height="1199" loading="lazy" alt="Hand-drawn mind map titled Investing Basics: Learn, Invest, Grow. It summarises what investing is, why to invest, key concepts, types of investments, how shares, mutual funds and ETFs work, risks, costs and fees, taxes, what to do before you invest, and a key takeaway that investing is a balance between opportunity and risk." />
+        </a>
+        <figcaption>Investing basics on one page. Select the image to open it full size.</figcaption>
+      </figure>
     `,
   },
   {
@@ -146,6 +153,10 @@ function formatDate(iso) {
   return dateFormat.format(new Date(y, m - 1, d));
 }
 
+function fullTitle(essay) {
+  return essay.subtitle ? `${essay.title}: ${essay.subtitle}` : essay.title;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -158,7 +169,7 @@ function linkLatest() {
   if (!link || !essays.length) return;
   const latest = essays.reduce((a, b) => (b.date > a.date ? b : a));
   link.href = `#${encodeURIComponent(latest.slug)}`;
-  link.setAttribute("aria-label", `Read the latest essay: ${latest.title}`);
+  link.setAttribute("aria-label", `Read the latest essay: ${fullTitle(latest)}`);
 }
 
 // Point each About-section topic at the newest essay in that category.
@@ -171,11 +182,14 @@ function linkTopics() {
   });
 }
 
+const GRID_PREVIEW = 4;
+
 function renderEssays() {
   const grid = document.getElementById("essay-grid");
   if (!grid) return;
 
-  grid.innerHTML = essays.map((essay) => `
+  const newestFirst = [...essays].sort((a, b) => b.date.localeCompare(a.date));
+  grid.innerHTML = newestFirst.map((essay) => `
     <article class="card">
       <a class="card__link" href="#${encodeURIComponent(essay.slug)}">
         ${essay.image
@@ -186,10 +200,31 @@ function renderEssays() {
         </div>`}
         <span class="card__category">${escapeHtml(essay.category)}</span>
         <h3 class="card__title">${escapeHtml(essay.title)}</h3>
+        ${essay.subtitle ? `<p class="card__subtitle">${escapeHtml(essay.subtitle)}</p>` : ""}
         <time class="card__date" datetime="${escapeHtml(essay.date)}">${formatDate(essay.date)}</time>
         <p class="card__excerpt">${escapeHtml(essay.excerpt)}</p>
       </a>
     </article>`).join("");
+
+  setupViewAll(grid);
+}
+
+// Show the newest few essays; "View all" toggles the rest of the grid.
+function setupViewAll(grid) {
+  const button = document.getElementById("view-all");
+  if (!button || essays.length <= GRID_PREVIEW) return;
+
+  const setExpanded = (expanded) => {
+    grid.classList.toggle("is-collapsed", !expanded);
+    button.setAttribute("aria-expanded", String(expanded));
+    button.textContent = expanded ? "Show less «" : "View all »";
+  };
+
+  setExpanded(false);
+  button.hidden = false;
+  button.addEventListener("click", () => {
+    setExpanded(button.getAttribute("aria-expanded") !== "true");
+  });
 }
 
 /* ==========================================================================
@@ -208,6 +243,7 @@ function initRouter() {
   if (!home || !view) return;
 
   const title = document.getElementById("essay-title");
+  const subtitle = document.getElementById("essay-subtitle");
   const category = document.getElementById("essay-category");
   const date = document.getElementById("essay-date");
   const read = document.getElementById("essay-read");
@@ -220,6 +256,8 @@ function initRouter() {
   function showEssay(essay) {
     category.textContent = essay.category;
     title.textContent = essay.title;
+    subtitle.textContent = essay.subtitle || "";
+    subtitle.hidden = !essay.subtitle;
     date.dateTime = essay.date;
     date.textContent = formatDate(essay.date);
     read.textContent = `${readMinutes(essay.body)} min read`;
@@ -234,7 +272,7 @@ function initRouter() {
 
     home.hidden = true;
     view.hidden = false;
-    document.title = `${essay.title} · Hanisha Pulimaddi`;
+    document.title = `${fullTitle(essay)} · Hanisha Pulimaddi`;
     window.scrollTo({ top: 0, behavior: "instant" });
     title.focus({ preventScroll: true });
   }

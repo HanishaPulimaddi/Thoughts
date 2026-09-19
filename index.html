@@ -56,6 +56,7 @@
         <header class="essay__head">
           <span class="card__category" id="essay-category"></span>
           <h1 class="essay__title" id="essay-title"></h1>
+          <p class="essay__subtitle" id="essay-subtitle" hidden></p>
           <div class="byline">
             <span class="avatar avatar--lg" aria-hidden="true"><img src="Images/ProfilePicture.jpeg" width="608" height="1000" alt="" /></span>
             <div>
@@ -105,7 +106,7 @@
       <section class="section" id="essays" aria-labelledby="essays-title">
         <div class="section-head">
           <h2 class="section-label" id="essays-title">Essays</h2>
-          <a class="view-all" href="#essays">View all »</a>
+          <button class="view-all" type="button" id="view-all" aria-controls="essay-grid" aria-expanded="false" hidden>View all »</button>
         </div>
         <div class="grid" id="essay-grid"></div>
       </section>

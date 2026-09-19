@@ -17,6 +17,7 @@ Add an object to the `essays` array in `main.js`:
 ```js
 {
   title: "…",
+  subtitle: "…",                // optional, shown smaller under the title
   category: "Technology",
   date: "2026-09-11",           // ISO; shown as "11 September 2026"
   excerpt: "…",
