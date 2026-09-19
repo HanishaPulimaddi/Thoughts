@@ -33,5 +33,3 @@ The card, the article page and the "Read the latest essay" button update automat
 ## Deploy
 
 Netlify or Vercel: import the repo with **no build command**, and set the publish/output directory to the project root.
-
-The "Portfolio" link in `index.html` points to `https://PORTFOLIO_URL_PLACEHOLDER`. Replace that once the portfolio's live URL is known.

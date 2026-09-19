@@ -599,19 +599,19 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
    About + contact
    ========================================================================== */
 
-/* Row 1 holds the heading; row 2 holds the photo, the text and the contact
-   column, so the photo and contact card share a top edge. The photo
-   stretches to the row's height, the text is bottom-aligned and the
-   contact links are pushed down, so all three columns end on one line. */
+/* Row 1: heading. Row 2: photo, text and contact card, sharing top and
+   bottom edges. The photo takes no height of its own on desktop (the image
+   is absolutely positioned), so it is exactly as tall as the card; the card
+   stretches too if the text is taller, with the message box taking the
+   extra. Row 3: the topic links and LinkedIn/Portfolio, side by side. */
 .about {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr 1fr;
-  grid-template-rows: auto auto;
   column-gap: 48px;
   align-items: start;
 }
 
-.about__heading { grid-column: 1; grid-row: 1; margin-bottom: 20px; }
+.about > .about__heading { grid-column: 1; grid-row: 1; margin-bottom: 20px; }
 .about__photo { grid-column: 1; grid-row: 2; align-self: stretch; }
 .about__text { grid-column: 2; grid-row: 2; align-self: end; }
 .about__contact {
@@ -621,8 +621,18 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
   display: flex;
   flex-direction: column;
 }
+.about__contact .panel { flex: 1; }
+.about__topics { grid-column: 2; grid-row: 3; margin-top: 24px; }
+.about__links { grid-column: 3; grid-row: 3; margin-top: 24px; }
 
-.about__contact .links { margin-top: auto; padding-top: 20px; }
+.about__photo { position: relative; width: 100%; }
+
+.about__photo .photo {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-position: 50% 20%;
+}
 
 .about > * { min-width: 0; }
 
@@ -635,11 +645,8 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
   color: var(--ink);
 }
 
-.about__media { aspect-ratio: 3 / 4; }
-
 .about__text .lead { max-width: 40ch; }
 .about__text .lead + .lead { margin-top: 16px; }
-.about__text .topics { margin-top: 28px; }
 
 .panel {
   padding: 28px;
@@ -709,6 +716,9 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
   resize: vertical;
 }
 
+.field--grow { flex: 1; }
+.field--grow .field__input--area { flex: 1; }
+
 .form__actions {
   display: flex;
   justify-content: flex-end;
@@ -746,25 +756,29 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
 }
 
 @media (max-width: 1023px) {
-  .about {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: auto auto auto;
-  }
+  .about { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* At least 3:4, and taller if the text beside it is taller. */
+  .about__photo { aspect-ratio: 3 / 4; }
 
   .about__contact {
     grid-column: 1 / -1;
-    grid-row: 3;
+    grid-row: 4;
     margin-top: 48px;
+  }
+
+  .about__links {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    margin-top: 20px;
   }
 }
 
 @media (max-width: 719px) {
-  .about {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-  }
+  .about { grid-template-columns: minmax(0, 1fr); }
 
-  .about > * { grid-column: 1; grid-row: auto; }
+  .about > *,
+  .about > .about__heading { grid-column: 1; grid-row: auto; }
   .about__text { align-self: start; margin-top: 32px; }
   .about__contact { margin-top: 40px; }
 

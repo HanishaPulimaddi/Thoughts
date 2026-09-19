@@ -118,18 +118,21 @@
 
         <div class="about">
           <h3 class="about__heading">Hanisha Pulimaddi</h3>
-          <img class="photo about__media about__photo" src="Images/ProfilePicture.jpeg" width="608" height="1000" alt="Hanisha Pulimaddi" loading="lazy" />
+          <div class="about__photo">
+            <img class="photo" src="Images/ProfilePicture.jpeg" width="608" height="1000" alt="Hanisha Pulimaddi" loading="lazy" />
+          </div>
 
           <div class="about__text">
             <h4 class="about__heading">Building with curiosity. Exploring with intention.</h4>
             <p class="lead">Why learn in public? Because the doubts are always loudest before I share, but every time I write things down, the lessons get a little clearer.</p>
             <p class="lead">I'm a software engineering student at UTS in Sydney. I enjoy building technology that solves meaningful problems, but I'm equally passionate about understanding the people behind those problems. From startup experimentation to community initiatives, I'm driven by curiosity, continuous learning, and thoughtful problem-solving.</p>
-            <ul class="links topics" aria-label="Topics">
-              <li><a href="#essays" data-topic="Technology">Technology</a></li>
-              <li><a href="#essays" data-topic="Building">Building</a></li>
-              <li><a href="#essays" data-topic="Places">Places</a></li>
-            </ul>
           </div>
+
+          <ul class="links about__topics" aria-label="Topics">
+            <li><a href="#essays" data-topic="Technology">Technology</a></li>
+            <li><a href="#essays" data-topic="Building">Building</a></li>
+            <li><a href="#essays" data-topic="Places">Places</a></li>
+          </ul>
 
           <div class="about__contact" id="contact">
             <form class="panel form" id="contact-form" novalidate>
@@ -147,7 +150,7 @@
                 <label class="field__label" for="f-subject">Subject</label>
                 <input class="field__input" id="f-subject" name="subject" type="text" placeholder="What's this about?" />
               </div>
-              <div class="field">
+              <div class="field field--grow">
                 <label class="field__label" for="f-message">Message</label>
                 <textarea class="field__input field__input--area" id="f-message" name="message" rows="5" placeholder="Tell me about the opportunity or idea..." required></textarea>
               </div>
@@ -156,11 +159,11 @@
               </div>
               <p class="form__status" id="form-status" role="status" aria-live="polite"></p>
             </form>
+          </div>
 
-            <div class="links">
-              <a href="https://www.linkedin.com/in/hanisha-pulimaddi-368545190" target="_blank" rel="noopener">LinkedIn</a>
-              <a href="https://PORTFOLIO_URL_PLACEHOLDER" target="_blank" rel="noopener">Portfolio</a>
-            </div>
+          <div class="links about__links">
+            <a href="https://www.linkedin.com/in/hanisha-pulimaddi-368545190" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://hanishapulimaddi.github.io/Portfolio/" target="_blank" rel="noopener">Portfolio</a>
           </div>
         </div>
       </section>
