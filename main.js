@@ -3,9 +3,116 @@
    automatically. date is ISO (YYYY-MM-DD); it's shown as "11 September 2026".
    body is HTML paragraphs; subtitle, image (4:3), note and refs are optional.
    Read time is estimated from the word count unless minutes is set.
+   quiz is optional: { intro, questions: [{ id, title, scenario, prompt,
+   options: [{ id, text }], answer, explanation }] }. It renders after the
+   references; an empty explanation is simply left out of the feedback.
    ========================================================================== */
 
 const essays = [
+  {
+    title: "How Do Machines Communicate With Each Other?",
+    category: "Technology",
+    date: "2026-10-11",
+    excerpt: "In a theatre, if you want a light to turn blue, you press a button. The light changes colour. But what happens between pressing that button and seeing blue light on the stage?",
+    slug: "how-do-machines-communicate-with-each-other",
+    image: "Images/net-fun.png",
+    note: "Earlier this month, I attended a technical theatre lighting workshop to understand what happens behind the scenes of a stage production and the technicalities involved in bringing an act to life. The itch to answer a question about how DMX lighting cables work in theatre settings drove me to relearn the network fundamentals I had already studied earlier in my degree. But this time, I approached them through the lens of a curious learner rather than someone trying to pass an exam.",
+    body: `
+      <p>In a theatre, if you want a light to turn blue, you press a button. The light changes colour. But what happens between pressing that button and seeing blue light on the stage? Imagine a light connected to a lighting controller with buttons. Each button press represents an instruction. The system must represent that instruction as information, send it through some form of communication, and have the receiving device interpret it. Data is structured information. Computers represent information using bits: 1s and 0s. These bits are encoded and transmitted as physical signals, such as changes in voltage or pulses of light, depending on the communication system.</p>
+      <p class="essay__flow"><span class="essay__flow-label">So the pattern is:</span> Sender <span class="essay__flow-arrow">&gt;</span> Instruction <span class="essay__flow-arrow">&gt;</span> Receiving Device</p>
+      <p>But how does the light know which colour to produce? Machines cannot understand instructions the way humans do. The controller must translate the instruction into information the fixture can interpret. But how is that information communicated, and how does the fixture know what it means? This is where protocols come in. Protocols define the rules devices follow to exchange and interpret information. In theatre lighting, DMX512 is a standard that allows lighting controllers to send numerical control values to lighting fixtures. So, in this example, you want a theatre light to turn blue. When you select blue on the lighting controller, it translates your instruction into numerical values. For an RGB fixture, red and green might be set to 0 (low values), while blue is set to 255 (a high value). Using DMX512, the controller sends these values through a DMX cable. The fixture reads the values assigned to its colour channels and adjusts its LEDs accordingly. With red and green switched off and blue at maximum intensity, the fixture produces blue light.</p>
+      <p class="essay__flow"><span class="essay__flow-label">So the pattern is:</span> Sender <span class="essay__flow-arrow">&gt;</span> Instruction <span class="essay__flow-arrow">&gt;</span> Communication Protocol <span class="essay__flow-arrow">&gt;</span> Receiving Device</p>
+      <p>Now we know that the controller must send information in a format the light understands. But how does that information travel? Information can travel through wired or wireless connections. In a wired setup, electrical signals travel through a cable. Wireless connections use radio waves, while fibre-optic cables transmit information as pulses of light. In theatre lighting, DMX512 control data travels from a lighting controller to fixtures through a DMX cable. The cable carries the signals, while the standard defines how the control values are communicated. In short, a controller sends information to a device through a communication medium, such as a cable, following an agreed set of rules.</p>
+      <p class="essay__flow"><span class="essay__flow-label">So the pattern is:</span> Sender <span class="essay__flow-arrow">&gt;</span> Instruction <span class="essay__flow-arrow">&gt;</span> Communication Protocol <span class="essay__flow-arrow">&gt;</span> Communication Medium <span class="essay__flow-arrow">&gt;</span> Receiving Device</p>
+      <p>But what happens when multiple devices are connected? How does the information reach the right device, and how does each device know which information is meant for it? A theatre doesn't run on a single light. Imagine twenty lights, a lighting controller, and a computer running QLab, software used to trigger cues. In a simple setup, a controller can send signals to a light through a cable. But connecting every device individually can become cumbersome as the system grows. Instead, we can connect devices through a network, allowing them to exchange information over shared infrastructure. This introduces the idea of a Local Area Network (LAN), a network connecting devices within a limited area, such as a theatre. Devices can connect through Ethernet cables or Wi-Fi, while network equipment helps direct information towards its destination. For example, QLab can send lighting-control data over an IP network using protocols such as Art-Net or sACN. A receiving node can then convert that data into DMX signals for the connected lighting fixtures.</p>
+      <p>The question now is: how does the network know where to send the information? QLab wants to send a lighting cue over the theatre's network. Before the data can reach the receiving node, the network needs a way to identify the destination. This is where IP addresses and MAC addresses come in. An IP address identifies a device's network destination and helps information travel between networks. A MAC address identifies a network interface and is used to deliver frames across a local Ethernet network. When data travels across an Ethernet network, it is organised into units called Ethernet frames. A frame contains the data being carried, along with information such as the source and destination MAC addresses. An Ethernet switch reads the destination MAC address to decide which port should receive the frame. Think of an Ethernet cable as the road carrying the information, an Ethernet frame as a labelled package, a MAC address as the local delivery address, and an IP address as the destination address used to guide the information across networks. The analogy is not exact, but it helps explain their different roles. So, in this example, if QLab sends lighting data to a node on the same LAN, the computer uses the destination IP address to identify the node. It then uses the node's MAC address to deliver the Ethernet frame. The network switch forwards the frame towards the correct port, and the node receives the data. Once the node receives the lighting data, it processes the relevant Art-Net or sACN information and outputs DMX control values to the connected fixtures.</p>
+      <p class="essay__flow"><span class="essay__flow-label">So the pattern is:</span> Sender <span class="essay__flow-arrow">&gt;</span> Instruction <span class="essay__flow-arrow">&gt;</span> Communication Protocol <span class="essay__flow-arrow">&gt;</span> Addressing <span class="essay__flow-arrow">&gt;</span> Network Forwarding <span class="essay__flow-arrow">&gt;</span> Receiving Device</p>
+      <p>This then leads us to another question: what happens when the destination is busy, or when information gets delayed or lost along the way? When data needs to travel beyond the local network, a router helps forward it towards its destination. Data is commonly divided into smaller units called packets. Each packet carries part of the data, along with information that helps it reach the right destination. But networks are not always predictable. Packets can be delayed, lost, or arrive out of order. Different communication protocols handle these problems differently. TCP (Transmission Control Protocol) establishes a connection between two endpoints and provides reliable, ordered delivery of data. If information is lost, TCP can retransmit it. This makes it useful for applications where complete and correct delivery matters, such as loading a webpage or transferring a file. UDP (User Datagram Protocol) sends data without establishing a connection or guaranteeing delivery. It has less overhead, making it useful when low latency matters more than retransmitting every missing message. It is commonly used in real-time applications, including audio, video, and some lighting-control systems. Going back to the theatre example, if QLab sends lighting-control data over a network using Art-Net, that data is typically carried over UDP. This allows lighting-control data to be transmitted quickly without waiting for lost data to be retransmitted. Art-Net and sACN both commonly use UDP to transmit lighting-control data over IP networks.</p>
+      <p class="essay__flow"><span class="essay__flow-label">So the pattern is:</span> Sender <span class="essay__flow-arrow">&gt;</span> Instruction <span class="essay__flow-arrow">&gt;</span> Application Protocol <span class="essay__flow-arrow">&gt;</span> Network Addressing and Forwarding <span class="essay__flow-arrow">&gt;</span> Transport Protocol (TCP/UDP) <span class="essay__flow-arrow">&gt;</span> Receiving Device</p>
+      <p>What began as a button press has travelled through several layers: an instruction became numerical data, a protocol defined how that data was communicated, an IP address identified its network destination, and Ethernet frames carried the data across the local network. Switches and routers helped move the data towards its destination, while a transport protocol such as TCP or UDP governed how the data was exchanged. Finally, a receiving node translated the network lighting data into DMX signals that the fixtures could interpret, producing the blue light we see on stage.</p>
+    `,
+    refs: [
+      "Entertainment Services and Technology Association. (2024). ANSI E1.11-2024: USITT DMX512-A, Asynchronous Serial Digital Data Transmission Standard for Controlling Lighting Equipment and Accessories. https://tsp.esta.org/tsp/documents/docs/ANSI%20E1.11%20-%202024.pdf",
+      "Figure 53, Inc. (n.d.). Introduction to Lighting in QLab 5. https://qlab.app/docs/v5/lighting/introduction-to-lighting/",
+      "Entertainment Services and Technology Association. (2025). ANSI E1.31-2025: Lightweight Streaming Protocol for Transport of DMX512 Using ACN. https://webstore.ansi.org/standards/esta/ansie1312025",
+      "Cisco. (n.d.). What Is an Ethernet Switch? https://www-cloud.cisco.com/site/us/en/learn/topics/networking/what-is-an-ethernet-switch.html",
+      "Postel, J. (1981). Internet Protocol (RFC 791). Internet Engineering Task Force. https://www.rfc-editor.org/rfc/rfc791",
+      "Postel, J. (1980). User Datagram Protocol (RFC 768). Internet Engineering Task Force. https://www.rfc-editor.org/rfc/rfc768",
+      "Eddy, W. (Ed.). (2022). Transmission Control Protocol (TCP) (RFC 9293). Internet Engineering Task Force. https://www.rfc-editor.org/rfc/rfc9293",
+    ],
+    quiz: {
+      intro: "Let’s actually put the learning to test. Here are five scenarios from different industries. Each question focuses on one fundamental of communication, so you can apply what you've learned beyond the original example.",
+      // The source draft gives each correct option but no explanations yet;
+      // add them to explanation and they appear in the feedback.
+      questions: [
+        {
+          id: "smart-home",
+          title: "Smart home",
+          scenario: "You open an app on your smartphone and tap a button to turn on a smart light connected to your home Wi-Fi.",
+          prompt: "What triggers the communication, and who sends the information?",
+          options: [
+            { id: "A", text: "The smart light sends a request to the phone when you tap the button." },
+            { id: "B", text: "The button tap triggers the instruction, and the smartphone or app sends a command to the light." },
+            { id: "C", text: "The Wi-Fi router creates the instruction and sends it to both devices." },
+          ],
+          answer: "B",
+          explanation: "",
+        },
+        {
+          id: "office-printer",
+          title: "Office printer",
+          scenario: "An employee clicks Print on a laptop. A document is sent to a printer connected to the office network through Ethernet.",
+          prompt: "What information is being sent from the laptop to the printing system?",
+          options: [
+            { id: "A", text: "Only the printer's MAC address." },
+            { id: "B", text: "A command telling the Ethernet switch to print the document." },
+            { id: "C", text: "Print-job data, including the document content and relevant printing instructions." },
+          ],
+          answer: "C",
+          explanation: "",
+        },
+        {
+          id: "public-transport",
+          title: "Public transport",
+          scenario: "A transport operator updates arrival times on electronic displays across several train stations from a central system.",
+          prompt: "Which protocols and systems could help deliver the updates to the displays?",
+          options: [
+            { id: "A", text: "IP networking and application-level communication protocols, with network equipment forwarding data to station systems." },
+            { id: "B", text: "Only MAC addresses, because they contain the arrival times." },
+            { id: "C", text: "TCP or UDP alone, because transport protocols specify the meaning of every arrival-time update." },
+          ],
+          answer: "A",
+          explanation: "",
+        },
+        {
+          id: "hospital",
+          title: "Hospital",
+          scenario: "A nurse records a patient's updated vital signs on a connected bedside monitor. The readings appear on a monitoring station elsewhere in the hospital.",
+          prompt: "What medium and network equipment might carry or forward this information?",
+          options: [
+            { id: "A", text: "The monitor interprets the readings, so no communication medium is needed." },
+            { id: "B", text: "A wired Ethernet connection or a secured wireless network may carry the data, with switches and access points forwarding it." },
+            { id: "C", text: "A router physically measures the patient's vital signs and sends the results." },
+          ],
+          answer: "B",
+          explanation: "",
+        },
+        {
+          id: "banking",
+          title: "Banking",
+          scenario: "You transfer money using a banking app. The app sends the transfer request to the bank's servers, which validate and process it.",
+          prompt: "How does the receiving system interpret the information and act on it?",
+          options: [
+            { id: "A", text: "The Ethernet switch decides whether the transfer is legitimate based on the destination MAC address." },
+            { id: "B", text: "The IP address itself contains the transfer amount and authorises the payment." },
+            { id: "C", text: "The bank's application processes the request, checks authentication and transaction rules, and authorises or rejects the transfer." },
+          ],
+          answer: "C",
+          explanation: "",
+        },
+      ],
+    },
+  },
   {
     title: "The Money I Never Learned About",
     subtitle: "Chapter 1: Savings and Investments",
@@ -241,6 +348,11 @@ function setupViewAll(grid) {
    landing page, so each essay is a shareable, back-button-friendly link.
    ========================================================================== */
 
+// Turn the URLs in an already-escaped reference into links that open in a new tab.
+function linkUrls(html) {
+  return html.replace(/https?:\/\/[^\s<]+[^\s<.,;:)]/g, (url) => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`);
+}
+
 function readMinutes(html) {
   const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
@@ -275,9 +387,11 @@ function initRouter() {
       ? `<aside class="essay__note" aria-label="Author's note"><span class="essay__note-label">Author's note</span><p>${escapeHtml(essay.note)}</p></aside>`
       : "";
     const refs = essay.refs && essay.refs.length
-      ? `<section class="essay__refs"><h2>References</h2><ul>${essay.refs.map((ref) => `<li>${escapeHtml(ref)}</li>`).join("")}</ul></section>`
+      ? `<section class="essay__refs"><h2>References</h2><ul>${essay.refs.map((ref) => `<li>${linkUrls(escapeHtml(ref))}</li>`).join("")}</ul></section>`
       : "";
-    body.innerHTML = note + essay.body.trim() + refs;
+    const quiz = essay.quiz ? renderQuiz(essay.quiz) : "";
+    body.innerHTML = note + essay.body.trim() + refs + quiz;
+    if (essay.quiz) initQuiz(body.querySelector(".quiz"), essay.quiz);
 
     home.hidden = true;
     view.hidden = false;
@@ -310,6 +424,153 @@ function initRouter() {
 
   window.addEventListener("hashchange", route);
   route();
+}
+
+/* ==========================================================================
+   Essay quiz: each question is checked on its own and then locked until
+   "Try again"; the score counts each checked question once. Nothing is
+   stored, so reopening the essay starts the quiz afresh.
+   ========================================================================== */
+
+function renderQuiz(quiz) {
+  const total = quiz.questions.length;
+  const questions = quiz.questions.map((q, i) => {
+    const name = `quiz-${q.id}`;
+    const options = q.options.map((option) => `
+            <label class="quiz__option">
+              <input type="radio" name="${escapeHtml(name)}" value="${escapeHtml(option.id)}" />
+              <span class="quiz__letter">${escapeHtml(option.id)}.</span>
+              <span>${escapeHtml(option.text)}</span>
+              <span class="quiz__tag" hidden></span>
+            </label>`).join("");
+    return `
+      <li>
+        <form class="panel quiz__question" data-id="${escapeHtml(q.id)}" novalidate>
+          <span class="quiz__num">Question ${i + 1} of ${total}</span>
+          <h3 class="quiz__heading">${escapeHtml(q.title)}</h3>
+          <p class="quiz__scenario">${escapeHtml(q.scenario)}</p>
+          <fieldset class="quiz__fieldset">
+            <legend class="quiz__prompt">${escapeHtml(q.prompt)}</legend>
+            <div class="quiz__options">${options}
+            </div>
+          </fieldset>
+          <p class="quiz__error" role="alert"></p>
+          <div class="quiz__feedback" tabindex="-1"></div>
+          <div class="quiz__actions">
+            <button class="btn btn--primary btn--lg" type="submit">Check answer</button>
+            <button class="btn btn--lg" type="button" data-action="retry" hidden>Try again</button>
+          </div>
+        </form>
+      </li>`;
+  }).join("");
+
+  return `
+    <section class="quiz" aria-labelledby="quiz-title">
+      <h2 class="quiz__title" id="quiz-title" tabindex="-1">Test your understanding</h2>
+      <p class="quiz__intro">${escapeHtml(quiz.intro)}</p>
+      <ol class="quiz__list">${questions}
+      </ol>
+      <div class="panel quiz__summary" hidden>
+        <p class="quiz__score" role="status"></p>
+        <button class="btn btn--lg" type="button" data-action="reset">Retry quiz</button>
+      </div>
+    </section>`;
+}
+
+function quizFeedback(q, choice) {
+  const correct = choice === q.answer;
+  const answer = q.options.find((option) => option.id === q.answer);
+  const verdict = correct
+    ? `<p class="quiz__verdict"><span aria-hidden="true">✓</span> Correct!</p>`
+    : `<p class="quiz__verdict"><span aria-hidden="true">✕</span> Not quite. The correct answer is ${escapeHtml(answer.id)}.</p>
+       <p>${escapeHtml(answer.id)}. ${escapeHtml(answer.text)}</p>`;
+  return verdict + (q.explanation ? `<p>${escapeHtml(q.explanation)}</p>` : "");
+}
+
+function initQuiz(root, quiz) {
+  if (!root) return;
+  const byId = new Map(quiz.questions.map((q) => [q.id, q]));
+  const checked = new Map(); // question id -> the option that was checked
+  const summary = root.querySelector(".quiz__summary");
+  const score = root.querySelector(".quiz__score");
+
+  function updateSummary() {
+    const done = checked.size === quiz.questions.length;
+    summary.hidden = !done;
+    score.textContent = "";
+    if (!done) return;
+    const correct = [...checked].filter(([id, choice]) => byId.get(id).answer === choice).length;
+    // Fill the status once it is visible so screen readers announce it.
+    requestAnimationFrame(() => {
+      score.textContent = `You got ${correct} out of ${quiz.questions.length} correct.`;
+    });
+  }
+
+  // Show a question as checked with the given choice, or reset it (choice null).
+  function setQuestion(form, choice) {
+    const q = byId.get(form.dataset.id);
+    const isChecked = choice !== null;
+    const feedback = form.querySelector(".quiz__feedback");
+
+    form.querySelector(".quiz__fieldset").disabled = isChecked;
+    form.querySelector('[type="submit"]').hidden = isChecked;
+    form.querySelector('[data-action="retry"]').hidden = !isChecked;
+    form.querySelector(".quiz__error").textContent = "";
+
+    form.querySelectorAll(".quiz__option").forEach((label) => {
+      const input = label.querySelector("input");
+      const tag = label.querySelector(".quiz__tag");
+      const isAnswer = isChecked && input.value === q.answer;
+      const isChoice = isChecked && input.value === choice;
+      if (!isChecked) input.checked = false;
+      label.classList.toggle("is-correct", isAnswer);
+      label.classList.toggle("is-incorrect", isChoice && !isAnswer);
+      tag.textContent = isChoice && isAnswer ? "Your answer · Correct"
+        : isChoice ? "Your answer · Incorrect"
+        : isAnswer ? "Correct answer"
+        : "";
+      tag.hidden = !tag.textContent;
+    });
+
+    feedback.className = `quiz__feedback${isChecked ? (choice === q.answer ? " is-correct" : " is-incorrect") : ""}`;
+    feedback.innerHTML = isChecked ? quizFeedback(q, choice) : "";
+
+    if (isChecked) checked.set(q.id, choice);
+    else checked.delete(q.id);
+    updateSummary();
+  }
+
+  root.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const selected = form.querySelector("input:checked");
+    if (!selected) {
+      form.querySelector(".quiz__error").textContent = "Choose an answer before checking.";
+      form.querySelector("input").focus();
+      return;
+    }
+    setQuestion(form, selected.value);
+    // The Check button is now hidden; move focus to the feedback so it is read out.
+    form.querySelector(".quiz__feedback").focus();
+  });
+
+  root.addEventListener("change", (event) => {
+    const form = event.target.closest(".quiz__question");
+    if (form) form.querySelector(".quiz__error").textContent = "";
+  });
+
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-action]");
+    if (!button) return;
+    if (button.dataset.action === "retry") {
+      const form = button.closest(".quiz__question");
+      setQuestion(form, null);
+      form.querySelector("input").focus();
+    } else {
+      root.querySelectorAll(".quiz__question").forEach((form) => setQuestion(form, null));
+      root.querySelector(".quiz__title").focus();
+    }
+  });
 }
 
 /* ==========================================================================

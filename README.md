@@ -27,10 +27,20 @@ Add an object to the `essays` array in `main.js`:
   image: "Images/my-image.png", // optional, 4:3
   note: "…",                    // optional author's note
   body: `<p>…</p><p>…</p>`,
-  refs: ["…"],                  // optional references
+  refs: ["…"],                  // optional references; URLs in them become links
   minutes: 12,                  // optional; overrides the word-count read time
+  quiz: {                       // optional multiple-choice quiz after the references
+    intro: "…",
+    questions: [
+      { id: "stable-id", title: "…", scenario: "…", prompt: "…",
+        options: [{ id: "A", text: "…" }, { id: "B", text: "…" }],
+        answer: "B", explanation: "…" },  // explanation may be ""
+    ],
+  },
 }
 ```
+
+In `body`, `<p class="essay__flow">` styles a recurring "So the pattern is: A > B" statement.
 
 The card, the article page and the "Read the latest essay" button update automatically.
 
