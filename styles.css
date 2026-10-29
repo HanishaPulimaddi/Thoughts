@@ -1296,6 +1296,8 @@ a:focus-visible:not(.btn) { border-radius: 4px; }
 
 .gate__form--inline { margin-top: 32px; }
 
+.gate__form[hidden] { display: none; }
+
 .hidden-list-view { margin-top: 24px; }
 
 /* The hidden cards are buttons, so they need the button reset; everything

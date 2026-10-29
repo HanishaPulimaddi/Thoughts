@@ -10,7 +10,9 @@
      node tools/encrypt.mjs remove <id>
 
    Two passphrase layers: the page passphrase encrypts hidden/index.json
-   (the list of titles), and each article gets its own passphrase. Losing a
+   (the list of titles), and each article gets its own passphrase — unless
+   its draft says "access: page", in which case the article is encrypted with
+   the page passphrase and opens as soon as the page is unlocked. Losing a
    passphrase means losing that article — there is no recovery path.
    ========================================================================== */
 
@@ -132,7 +134,11 @@ async function ask(question) {
 
   process.stdout.write(question);
   const lines = await readPiped();
-  const answer = (lines.shift() || "").trim();
+  if (!lines.length) {
+    console.error("\nNo more input. Run this in a terminal to type the passphrases.");
+    process.exit(1);
+  }
+  const answer = lines.shift().trim();
   process.stdout.write("\n");
   return answer;
 }
@@ -159,8 +165,11 @@ async function askPassphrase(label, { confirm = false } = {}) {
    date: 2026-09-22
    image: Images/something.png   (optional, 4:3, shown on the card)
    excerpt: optional             (defaults to the opening of the first paragraph)
+   access: page                  (optional: the page passphrase alone opens it)
    <blank line>
-   Paragraphs, separated by blank lines.
+   Paragraphs, separated by blank lines. *Text in asterisks* is italic. A
+   paragraph that is just "References" starts the references: each paragraph
+   after it is one reference, and its URLs become links.
    ========================================================================== */
 
 function parseDraft(text) {
@@ -170,7 +179,7 @@ function parseDraft(text) {
   const meta = {};
   let cursor = 0;
   for (; cursor < lines.length; cursor += 1) {
-    const match = lines[cursor].match(/^(title|subtitle|date|image|excerpt):\s*(.+)$/i);
+    const match = lines[cursor].match(/^(title|subtitle|date|image|excerpt|access):\s*(.+)$/i);
     if (!match) break;
     meta[match[1].toLowerCase()] = match[2].trim();
   }
@@ -180,22 +189,44 @@ function parseDraft(text) {
   if (meta.date && !/^\d{4}-\d{2}-\d{2}$/.test(meta.date)) {
     throw new Error("date must look like 2026-09-22");
   }
+  if (meta.access && meta.access.toLowerCase() !== "page") {
+    throw new Error("access can only be: page");
+  }
 
   const paragraphs = rest
     .split(/\n{2,}/)
     .map((block) => block.replace(/\n/g, " ").trim())
     .filter(Boolean);
 
-  if (!paragraphs.length) throw new Error("The draft has no body text under the header lines.");
+  const refsAt = paragraphs.findIndex((block) => /^references:?$/i.test(block));
+  const blocks = refsAt === -1 ? paragraphs : paragraphs.slice(0, refsAt);
+  const refs = refsAt === -1 ? [] : paragraphs.slice(refsAt + 1);
+
+  if (!blocks.length) throw new Error("The draft has no body text under the header lines.");
+
+  // Same markup as the public essays' references.
+  const refsHtml = refs.length
+    ? `\n<section class="essay__refs"><h2>References</h2><ul>${refs.map((ref) => `<li>${linkUrls(inline(ref))}</li>`).join("")}</ul></section>`
+    : "";
 
   return {
     title: meta.title,
     subtitle: meta.subtitle || "",
     date: meta.date || new Date().toISOString().slice(0, 10),
     image: meta.image || "",
-    excerpt: meta.excerpt || summarise(paragraphs[0]),
-    body: paragraphs.map((block) => `<p>${escapeHtml(block)}</p>`).join("\n"),
+    excerpt: meta.excerpt || summarise(blocks[0].replace(/\*/g, "")),
+    access: meta.access ? "page" : "",
+    body: blocks.map((block) => `<p>${inline(block)}</p>`).join("\n") + refsHtml,
   };
+}
+
+// Escape, then turn *text* into italics.
+function inline(block) {
+  return escapeHtml(block).replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+
+function linkUrls(html) {
+  return html.replace(/https?:\/\/[^\s<]+[^\s<.,;:)]/g, (url) => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`);
 }
 
 // Card excerpt: the opening of the piece, cut at a word so it reads cleanly.
@@ -262,11 +293,17 @@ async function add(draftPath) {
   // The filename is random so the repo gives nothing away; the mapping from
   // title to file lives inside the encrypted index.
   const id = existing ? existing.id : Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString("hex");
-  const articlePass = await askPassphrase(`Passphrase for this article${existing ? " (a new one replaces the old)" : ""}`, { confirm: true });
-
-  if (articlePass === pagePass) {
-    console.error("\nUse a different passphrase from the page one, or the second layer adds nothing.");
-    process.exit(1);
+  // "access: page" articles have no code of their own: the page passphrase
+  // encrypts them too, so unlocking the page is what opens them.
+  let articlePass = pagePass;
+  if (article.access === "page") {
+    console.log("\nThis article opens with the page passphrase alone (access: page).");
+  } else {
+    articlePass = await askPassphrase(`Passphrase for this article${existing ? " (a new one replaces the old)" : ""}`, { confirm: true });
+    if (articlePass === pagePass) {
+      console.error("\nUse a different passphrase from the page one, or the second layer adds nothing.");
+      process.exit(1);
+    }
   }
 
   await mkdir(OUT_DIR, { recursive: true });
@@ -282,6 +319,7 @@ async function add(draftPath) {
     date: article.date,
     image: article.image,
     excerpt: article.excerpt,
+    access: article.access,
   };
   if (existing) Object.assign(existing, entry);
   else index.articles.push(entry);
@@ -290,7 +328,9 @@ async function add(draftPath) {
   await writeIndex(pagePass, index);
 
   console.log(`\nEncrypted to hidden/${id}.json and listed in hidden/index.json.`);
-  console.log("Save that article passphrase in your password manager now — it cannot be recovered.");
+  if (article.access !== "page") {
+    console.log("Save that article passphrase in your password manager now — it cannot be recovered.");
+  }
   console.log("Then commit the hidden/ folder.");
 }
 

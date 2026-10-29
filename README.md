@@ -59,9 +59,18 @@ Write the draft in `PrivateEssays/` (git-ignored, so the plain text never reache
 title: My title
 subtitle: Optional
 date: 2026-09-22
+access: page        # optional: no code of its own, the page passphrase opens it
 
-Blank lines separate paragraphs.
+Blank lines separate paragraphs. *Asterisks* make italics.
+
+References
+
+Each paragraph after "References" is one reference; its URLs become links.
 ```
+
+With `access: page` the article is encrypted with the page passphrase, so anyone who can
+open the hidden page can read it straight from the list. Leave it out to give the article
+its own passphrase as well.
 
 Then publish it, entering the page passphrase and a fresh one for the article:
 

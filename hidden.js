@@ -6,7 +6,9 @@
    to decrypt, so the files give nothing away on their own.
 
    Two layers: the page passphrase opens hidden/index.json (the titles), and
-   each article has its own passphrase. Write new articles with
+   each article has its own passphrase — except "access: page" articles,
+   which the page passphrase also opens, so they open straight from the
+   list. Write new articles with
    `node tools/encrypt.mjs add PrivateEssays/<draft>`.
    ========================================================================== */
 
@@ -91,6 +93,7 @@
     const articleBody = document.getElementById("article-body");
 
     let openEntry = null; // the listed article being opened
+    let pagePassphrase = null; // kept to open "access: page" articles
 
     function show(name) {
       Object.entries(views).forEach(([key, view]) => { view.hidden = key !== name; });
@@ -150,6 +153,7 @@
       }
 
       session.set(passphrase);
+      pagePassphrase = passphrase;
       gateStatus.textContent = "";
       gatePass.value = "";
       renderList(index);
@@ -166,11 +170,50 @@
       articleDate.textContent = formatDate(entry.date);
       articleBody.hidden = true;
       articleBody.innerHTML = "";
-      articleForm.hidden = false;
       articleStatus.textContent = "";
       articlePass.value = "";
       show("article");
+
+      // The page passphrase already opens these, so skip the code form.
+      if (entry.access === "page" && pagePassphrase) {
+        articleForm.hidden = true;
+        articleBody.innerHTML = `<p class="hidden-empty">Opening…</p>`;
+        articleBody.hidden = false;
+        loadArticle(pagePassphrase);
+        return;
+      }
+      articleForm.hidden = false;
       articlePass.focus();
+    }
+
+    // Decrypt the open article with a passphrase and show it.
+    async function loadArticle(passphrase) {
+      const entry = openEntry;
+      articleStatus.textContent = "Opening…";
+      let payload;
+      try {
+        payload = await fetchEncrypted(`hidden/${entry.id}.json`);
+      } catch {
+        articleBody.hidden = true;
+        articleForm.hidden = false;
+        articleStatus.textContent = "That article is missing from the site.";
+        return;
+      }
+
+      const article = await decrypt(passphrase, payload);
+      if (entry !== openEntry) return; // the reader moved on meanwhile
+      if (!article) {
+        articleBody.hidden = true;
+        articleForm.hidden = false;
+        articleStatus.textContent = "That code didn't work.";
+        return;
+      }
+
+      articlePass.value = "";
+      articleStatus.textContent = "";
+      articleForm.hidden = true;
+      articleBody.innerHTML = article.body;
+      articleBody.hidden = false;
     }
 
     gateForm.addEventListener("submit", (event) => {
@@ -184,28 +227,7 @@
       event.preventDefault();
       const passphrase = articlePass.value;
       if (!passphrase || !openEntry) return;
-
-      whileWorking(articleSubmit, articleStatus, async () => {
-        let payload;
-        try {
-          payload = await fetchEncrypted(`hidden/${openEntry.id}.json`);
-        } catch {
-          articleStatus.textContent = "That article is missing from the site.";
-          return;
-        }
-
-        const article = await decrypt(passphrase, payload);
-        if (!article) {
-          articleStatus.textContent = "That code didn't work.";
-          return;
-        }
-
-        articlePass.value = "";
-        articleStatus.textContent = "";
-        articleForm.hidden = true;
-        articleBody.innerHTML = article.body;
-        articleBody.hidden = false;
-      });
+      whileWorking(articleSubmit, articleStatus, () => loadArticle(passphrase));
     });
 
     document.getElementById("article-back").addEventListener("click", () => show("list"));
