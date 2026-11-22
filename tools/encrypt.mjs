@@ -14,6 +14,9 @@
    its draft says "access: page", in which case the article is encrypted with
    the page passphrase and opens as soon as the page is unlocked. Losing a
    passphrase means losing that article — there is no recovery path.
+
+   The page passphrase can also come from HIDDEN_PAGE_PASSPHRASE in a
+   git-ignored .env file at the project root; without it, the tool asks.
    ========================================================================== */
 
 import { webcrypto as crypto } from "node:crypto";
@@ -28,6 +31,12 @@ const DRAFTS_DIR = path.join(ROOT, "PrivateEssays");
 // Deliberately slow: a guessing program has to pay this cost per attempt.
 const ITERATIONS = 600000;
 const MIN_PASSPHRASE = 12;
+
+// .env is optional; values still starting with "replace-with" are placeholders.
+try { process.loadEnvFile(path.join(ROOT, ".env")); } catch { /* no .env */ }
+const envPagePass = /^replace-with/i.test(process.env.HIDDEN_PAGE_PASSPHRASE ?? "")
+  ? ""
+  : (process.env.HIDDEN_PAGE_PASSPHRASE ?? "").trim();
 
 /* ==========================================================================
    Crypto: PBKDF2-SHA256 -> AES-256-GCM. Same format hidden.js reads.
@@ -157,6 +166,14 @@ async function askPassphrase(label, { confirm = false } = {}) {
   }
 }
 
+async function pagePassphrase() {
+  if (envPagePass) {
+    console.log("Page passphrase: from .env");
+    return envPagePass;
+  }
+  return askPassphrase("Page passphrase");
+}
+
 /* ==========================================================================
    Drafts
 
@@ -256,7 +273,7 @@ async function readIndex(passphrase) {
   }
   const data = await decrypt(passphrase, raw);
   if (!data) {
-    console.error("That page passphrase doesn't open the existing index. Nothing was changed.");
+    console.error("That page passphrase (typed or from .env) doesn't open the existing index. Nothing was changed.");
     process.exit(1);
   }
   return data;
@@ -284,7 +301,7 @@ async function add(draftPath) {
 
   console.log(`\n"${article.title}"${article.subtitle ? ` — ${article.subtitle}` : ""} · ${article.date}\n`);
 
-  const pagePass = await askPassphrase("Page passphrase");
+  const pagePass = await pagePassphrase();
   const index = await readIndex(pagePass);
 
   const existing = index.articles.find((entry) => entry.slug === slug);
@@ -335,7 +352,7 @@ async function add(draftPath) {
 }
 
 async function list() {
-  const pagePass = await askPassphrase("Page passphrase");
+  const pagePass = await pagePassphrase();
   const index = await readIndex(pagePass);
   if (!index.articles.length) return console.log("\nNothing published yet.");
   console.log("");
@@ -349,7 +366,7 @@ async function remove(id) {
     console.error("Usage: node tools/encrypt.mjs remove <id>   (see: node tools/encrypt.mjs list)");
     process.exit(1);
   }
-  const pagePass = await askPassphrase("Page passphrase");
+  const pagePass = await pagePassphrase();
   const index = await readIndex(pagePass);
   const entry = index.articles.find((item) => item.id === id);
   if (!entry) {

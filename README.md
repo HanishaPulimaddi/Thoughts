@@ -80,6 +80,15 @@ node tools/encrypt.mjs list                            # titles and ids
 node tools/encrypt.mjs remove <id>                     # unpublish one
 ```
 
+To skip typing the page passphrase, put it in a `.env` file at the project root (git-ignored):
+
+```
+HIDDEN_PAGE_PASSPHRASE=your page passphrase
+```
+
+A value still starting with `replace-with` counts as a placeholder, so the tool asks instead.
+Per-article passphrases are always typed.
+
 Commit the changed files under `hidden/`. Re-running `add` with the same title replaces that
 article and can change its passphrase — which is also how you revoke access you've given out.
 

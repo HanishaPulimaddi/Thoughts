@@ -3,3 +3,6 @@
 Thumbs.db
 PrivateEssays/
 
+
+# Local secrets (see README: Hidden articles)
+.env
